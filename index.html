@@ -5,8 +5,8 @@
   <style>
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #f0f8ff;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: #ffffcc;
       text-align: center;
       padding: 20px;
     }
@@ -15,6 +15,7 @@
       font-size: 100px;
       cursor: pointer;
       transition: transform 0.2s;
+      margin-top: 20px;
     }
 
     #duck:active {
@@ -22,39 +23,57 @@
     }
 
     #score {
-      font-size: 24px;
+      font-size: 28px;
       margin-top: 10px;
+      color: #ff3333;
+      font-weight: bold;
     }
 
     .shop {
       margin-top: 40px;
-      background: #fffde7;
-      border: 2px dashed #f5a623;
+      background: #d1ffcc;
+      border: 5px solid #66cc66;
       padding: 20px;
-      border-radius: 15px;
+      border-radius: 20px;
       display: inline-block;
+      box-shadow: 0 0 10px #33cc33;
     }
 
     .shop h2 {
       margin-top: 0;
+      font-size: 30px;
+      color: #006600;
     }
 
     .upgrade {
-      margin: 10px 0;
+      margin: 20px 0;
     }
 
     button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
-      background: #ffdd57;
+      padding: 10px 25px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: 3px solid #444;
+      background: #ffd966;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #fff200;
+    }
+
+    .bonus {
+      font-size: 40px;
+      position: absolute;
+      display: none;
       cursor: pointer;
     }
 
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
+    footer {
+      margin-top: 50px;
+      font-size: 14px;
+      color: #888;
     }
   </style>
 </head>
@@ -67,30 +86,40 @@
     <h2>🛒 Duck Shop</h2>
 
     <div class="upgrade">
-      <button onclick="buyAutoClicker()" id="autoBtn">Buy Auto Clicker (Cost: 50)</button>
+      <button onclick="buyAutoClicker()">Auto Clicker (Cost: <span id='autoCost'>50</span>)</button>
     </div>
 
     <div class="upgrade">
-      <button onclick="buyGoldenDuck()" id="goldenBtn">Buy Golden Duck (Cost: 100)</button>
+      <button onclick="buyGoldenDuck()">Golden Duck (Cost: <span id='goldenCost'>100</span>)</button>
     </div>
   </div>
 
+  <div id="bonusDuck" class="bonus">🦆</div>
+
+  <footer>
+    &copy; Cool Math Games
+  </footer>
+
   <script>
     let ducket = 0;
-    let autoClicker = false;
-    let goldenDuck = false;
+    let clickValue = 1;
+
+    let autoClickerLevel = 0;
+    let autoClickerCost = 50;
+
+    let goldenDuckLevel = 0;
+    let goldenDuckCost = 100;
 
     const duck = document.getElementById("duck");
     const scoreDisplay = document.getElementById("score");
-    const autoBtn = document.getElementById("autoBtn");
-    const goldenBtn = document.getElementById("goldenBtn");
-
-    let clickValue = 1;
+    const autoCostDisplay = document.getElementById("autoCost");
+    const goldenCostDisplay = document.getElementById("goldenCost");
+    const bonusDuck = document.getElementById("bonusDuck");
 
     function updateScore() {
       scoreDisplay.textContent = `Ducket$: ${ducket}`;
-      autoBtn.disabled = ducket < 50 || autoClicker;
-      goldenBtn.disabled = ducket < 100 || goldenDuck;
+      autoCostDisplay.textContent = autoClickerCost;
+      goldenCostDisplay.textContent = goldenDuckCost;
     }
 
     duck.onclick = () => {
@@ -99,29 +128,50 @@
     };
 
     function buyAutoClicker() {
-      if (ducket >= 50 && !autoClicker) {
-        ducket -= 50;
-        autoClicker = true;
+      if (ducket >= autoClickerCost) {
+        ducket -= autoClickerCost;
+        autoClickerLevel++;
+        autoClickerCost = Math.floor(autoClickerCost * 1.5);
         setInterval(() => {
           ducket += clickValue;
           updateScore();
-        }, 1000); // 1 click per second
+        }, 1000);
         updateScore();
       }
     }
 
     function buyGoldenDuck() {
-      if (ducket >= 100 && !goldenDuck) {
-        ducket -= 100;
-        goldenDuck = true;
-        clickValue = 5; // Each click now gives 5
-        duck.textContent = "🐥";
+      if (ducket >= goldenDuckCost) {
+        ducket -= goldenDuckCost;
+        goldenDuckLevel++;
+        goldenDuckCost = Math.floor(goldenDuckCost * 2);
+        clickValue += 2;
         updateScore();
       }
     }
 
+    function spawnBonusDuck() {
+      const x = Math.random() * (window.innerWidth - 50);
+      const y = Math.random() * (window.innerHeight - 50);
+      bonusDuck.style.left = x + 'px';
+      bonusDuck.style.top = y + 'px';
+      bonusDuck.style.display = 'block';
+      setTimeout(() => {
+        bonusDuck.style.display = 'none';
+      }, 3000);
+    }
+
+    bonusDuck.onclick = () => {
+      ducket += 50;
+      bonusDuck.style.display = 'none';
+      updateScore();
+    };
+
+    setInterval(() => {
+      if (Math.random() < 0.1) spawnBonusDuck();
+    }, 5000);
+
     updateScore();
   </script>
-
 </body>
 </html>
