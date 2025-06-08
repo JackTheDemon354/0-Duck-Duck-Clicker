@@ -17,10 +17,28 @@
       height: 100%;
       background: #fff;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       font-size: 2em;
       z-index: 1000;
+    }
+    #countdown {
+      margin-top: 20px;
+      font-size: 1em;
+    }
+    #progressBar {
+      width: 80%;
+      height: 20px;
+      background: #eee;
+      border: 1px solid #aaa;
+      margin-top: 10px;
+    }
+    #progressBar div {
+      height: 100%;
+      width: 100%;
+      background: #4caf50;
+      transition: width 1s linear;
     }
     .hidden { display: none; }
     .shop-item {
@@ -49,17 +67,34 @@
   </style>
 </head>
 <body>
-  <div id="loader">Loading Duck Duck Clicker...</div>
+  <div id="loader">
+    Loading Duck Duck Clicker...
+    <div id="countdown">5</div>
+    <div id="progressBar"><div></div></div>
+  </div>
 
   <div class="ad">Host your Minecraft server FREE at <a href="https://aternos.org" target="_blank">aternos.org</a>!</div>
 
   <div id="shop"></div>
 
   <script>
-    window.onload = () => {
+    if (!localStorage.getItem("hasVisited")) {
+      let timeLeft = 5;
+      const countdown = document.getElementById('countdown');
+      const progress = document.querySelector('#progressBar div');
+      const interval = setInterval(() => {
+        timeLeft--;
+        countdown.textContent = timeLeft;
+        progress.style.width = (timeLeft / 5 * 100) + '%';
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          document.getElementById('loader').classList.add('hidden');
+          localStorage.setItem("hasVisited", "true");
+        }
+      }, 1000);
+    } else {
       document.getElementById('loader').classList.add('hidden');
-      loadShop();
-    };
+    }
 
     const shopItems = [
       { name: "Tiny Duckling", type: "click", power: 1, cost: 50 },
@@ -87,36 +122,18 @@
     ];
 
     const shop = document.getElementById("shop");
-
-    function loadShop() {
-      let saved = localStorage.getItem("shopData");
-      let purchases = saved ? JSON.parse(saved) : {};
-
-      shop.innerHTML = "";
-      shopItems.forEach((item, i) => {
-        const el = document.createElement("div");
-        el.className = "shop-item";
-        el.innerHTML = `
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Emoji_u1f986.svg/1024px-Emoji_u1f986.svg.png" alt="Duck">
-          <div>
-            <div><strong>${item.name}</strong></div>
-            <div>${item.power}/${item.type.toUpperCase()} - $${item.cost.toLocaleString()}</div>
-            <div>Owned: <span id="owned-${i}">${purchases[item.name] || 0}</span></div>
-            <button onclick="buyItem(${i})">Buy</button>
-          </div>
-        `;
-        shop.appendChild(el);
-      });
-    }
-
-    function buyItem(index) {
-      let saved = localStorage.getItem("shopData");
-      let purchases = saved ? JSON.parse(saved) : {};
-      let item = shopItems[index];
-      purchases[item.name] = (purchases[item.name] || 0) + 1;
-      localStorage.setItem("shopData", JSON.stringify(purchases));
-      document.getElementById(`owned-${index}`).textContent = purchases[item.name];
-    }
+    shopItems.forEach(item => {
+      const el = document.createElement("div");
+      el.className = "shop-item";
+      el.innerHTML = `
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Emoji_u1f986.svg/1024px-Emoji_u1f986.svg.png" alt="Duck">
+        <div>
+          <div><strong>${item.name}</strong></div>
+          <div>${item.power}/${item.type.toUpperCase()} - $${item.cost.toLocaleString()}</div>
+        </div>
+      `;
+      shop.appendChild(el);
+    });
   </script>
 </body>
 </html>
