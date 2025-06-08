@@ -78,22 +78,25 @@
   <div id="shop"></div>
 
   <script>
+    const loader = document.getElementById('loader');
+    const countdown = document.getElementById('countdown');
+    const progress = document.querySelector('#progressBar div');
+
     if (!localStorage.getItem("hasVisited")) {
       let timeLeft = 5;
-      const countdown = document.getElementById('countdown');
-      const progress = document.querySelector('#progressBar div');
+      countdown.textContent = timeLeft;
       const interval = setInterval(() => {
         timeLeft--;
         countdown.textContent = timeLeft;
         progress.style.width = (timeLeft / 5 * 100) + '%';
         if (timeLeft <= 0) {
           clearInterval(interval);
-          document.getElementById('loader').classList.add('hidden');
+          loader.classList.add('hidden');
           localStorage.setItem("hasVisited", "true");
         }
       }, 1000);
     } else {
-      document.getElementById('loader').classList.add('hidden');
+      loader.classList.add('hidden');
     }
 
     const shopItems = [
