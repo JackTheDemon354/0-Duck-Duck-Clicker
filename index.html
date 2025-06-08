@@ -2,118 +2,100 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Duck Duck Clicker</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #ffffcc;
-      text-align: center;
-      padding: 20px;
+      margin: 0;
+      background: linear-gradient(to bottom, #cfeeff, #ffffff);
+      overflow-x: hidden;
     }
-    #duck {
-      font-size: 100px;
-      cursor: pointer;
+    #loader {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2em;
+      z-index: 1000;
     }
-    #score {
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .shop, .achievements {
-      margin: 20px auto;
-      padding: 20px;
-      border: 2px solid #333;
-      max-width: 500px;
-      background: #e0ffe0;
-      border-radius: 10px;
-    }
-    button {
+    .hidden { display: none; }
+    .shop-item {
+      display: flex;
+      align-items: center;
+      background: #ccc;
+      border: 2px solid #888;
+      border-radius: 8px;
       padding: 10px;
-      margin: 5px;
-      font-size: 16px;
+      margin: 10px auto;
+      max-width: 400px;
     }
-    .achievement {
-      font-size: 14px;
-      margin: 5px 0;
+    .shop-item img {
+      width: 48px;
+      height: 48px;
+      margin-right: 10px;
+    }
+    .ad {
+      margin: 20px;
+      padding: 10px;
+      background: yellow;
+      text-align: center;
+      font-weight: bold;
+      border: 2px dashed red;
     }
   </style>
 </head>
 <body>
-  <h1>Duck Duck Clicker</h1>
-  <div id="duck">🦆</div>
-  <div id="score">Ducket$: 0</div>
+  <div id="loader">Loading Duck Duck Clicker...</div>
 
-  <div class="shop">
-    <h2>Shop</h2>
-    <button onclick="buyUpgrade('duckCoop')">Duck Coop (Cost: <span id="duckCoopCost">50</span>)</button>
-  </div>
+  <div class="ad">Host your Minecraft server FREE at <a href="https://aternos.org" target="_blank">aternos.org</a>!</div>
 
-  <div class="achievements">
-    <h2>Achievements</h2>
-    <div id="achievementList"></div>
-  </div>
+  <div id="shop"></div>
 
   <script>
-    let state = JSON.parse(localStorage.getItem('gameState')) || {
-      ducket: 0,
-      clickValue: 1,
-      multiplier: 1,
-      upgrades: {
-        duckCoop: { level: 0, cost: 50, income: 1 }
-      },
-      achievementsUnlocked: []
-    };
+    window.onload = () => document.getElementById('loader').classList.add('hidden');
 
-    const scoreDisplay = document.getElementById("score");
-    const duck = document.getElementById("duck");
-    const achievementList = document.getElementById("achievementList");
+    const shopItems = [
+      { name: "Tiny Duckling", type: "click", power: 1, cost: 50 },
+      { name: "Duck Coop", type: "sec", power: 1, cost: 120 },
+      { name: "Young Duckling", type: "click", power: 5, cost: 600 },
+      { name: "Duck Pond", type: "sec", power: 5, cost: 1200 },
+      { name: "Aspiring Duck", type: "click", power: 50, cost: 7000 },
+      { name: "Duck Park", type: "sec", power: 40, cost: 30000 },
+      { name: "Smart Duck", type: "click", power: 120, cost: 50000 },
+      { name: "Duck Farm", type: "sec", power: 120, cost: 90000 },
+      { name: "Adult Duck", type: "click", power: 1000, cost: 1800000 },
+      { name: "Duck Machine", type: "sec", power: 2000, cost: 4000000 },
+      { name: "CEO Duck", type: "click", power: 6500, cost: 6000000 },
+      { name: "Duck Industry", type: "sec", power: 40000, cost: 100000000 },
+      { name: "President Duck", type: "click", power: 14000, cost: 180000000 },
+      { name: "Duck Country", type: "sec", power: 120000, cost: 700000000 },
+      { name: "Leader Duck", type: "click", power: 80000, cost: 1500000000 },
+      { name: "Duck Continent", type: "sec", power: 300000, cost: 5500000000 },
+      { name: "Science Duck", type: "click", power: 190000, cost: 13500000000 },
+      { name: "Duck Planet", type: "sec", power: 1200000, cost: 85000000000 },
+      { name: "Astronaut Duck", type: "click", power: 800000, cost: 125000000000 },
+      { name: "Duck Galaxy", type: "sec", power: 5500000, cost: 200000000000 },
+      { name: "Cosmic Duck", type: "click", power: 2500000, cost: 500000000000 },
+      { name: "Duck Universe", type: "sec", power: 10000000, cost: 999999999999 }
+    ];
 
-    function updateScore() {
-      scoreDisplay.textContent = `Ducket$: ${state.ducket}`;
-      document.getElementById('duckCoopCost').textContent = state.upgrades.duckCoop.cost;
-      localStorage.setItem('gameState', JSON.stringify(state));
-    }
-
-    function buyUpgrade(name) {
-      const upgrade = state.upgrades[name];
-      if (state.ducket >= upgrade.cost) {
-        state.ducket -= upgrade.cost;
-        upgrade.level++;
-        upgrade.cost = Math.floor(upgrade.cost * 1.5);
-        setInterval(() => {
-          state.ducket += upgrade.income * state.multiplier;
-          checkAchievements();
-          updateScore();
-        }, 1000);
-        updateScore();
-      }
-    }
-
-    function checkAchievements() {
-      const achievements = [
-        { id: "firstClick", condition: state.ducket >= 1, message: "First Ducket$!" },
-        { id: "hundredDuckets", condition: state.ducket >= 100, message: "100 Ducket$ earned!" },
-        { id: "coopOwner", condition: state.upgrades.duckCoop.level >= 1, message: "You bought a Duck Coop!" }
-      ];
-
-      achievements.forEach(ach => {
-        if (ach.condition && !state.achievementsUnlocked.includes(ach.id)) {
-          state.achievementsUnlocked.push(ach.id);
-          const msg = document.createElement('div');
-          msg.className = 'achievement';
-          msg.textContent = ach.message;
-          achievementList.appendChild(msg);
-        }
-      });
-    }
-
-    duck.onclick = () => {
-      state.ducket += state.clickValue * state.multiplier;
-      checkAchievements();
-      updateScore();
-    };
-
-    updateScore();
-    checkAchievements();
+    const shop = document.getElementById("shop");
+    shopItems.forEach(item => {
+      const el = document.createElement("div");
+      el.className = "shop-item";
+      el.innerHTML = `
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Emoji_u1f986.svg/1024px-Emoji_u1f986.svg.png" alt="Duck">
+        <div>
+          <div><strong>${item.name}</strong></div>
+          <div>${item.power}/${item.type.toUpperCase()} - $${item.cost.toLocaleString()}</div>
+        </div>
+      `;
+      shop.appendChild(el);
+    });
   </script>
 </body>
 </html>
