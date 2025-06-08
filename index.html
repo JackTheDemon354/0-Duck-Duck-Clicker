@@ -10,6 +10,7 @@
       margin: 0;
       background: linear-gradient(to bottom, #cfeeff, #ffffff);
       overflow-x: hidden;
+      text-align: center;
     }
     #loader {
       position: fixed;
@@ -64,6 +65,15 @@
       font-weight: bold;
       border: 2px dashed red;
     }
+    #clicker {
+      font-size: 2em;
+      margin: 20px;
+      cursor: pointer;
+    }
+    #score {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -75,12 +85,41 @@
 
   <div class="ad">Host your Minecraft server FREE at <a href="https://aternos.org" target="_blank">aternos.org</a>!</div>
 
+  <div id="score">Ducket$: 0</div>
+  <div id="clicker">🦆 CLICK THE DUCK!</div>
   <div id="shop"></div>
 
   <script>
     const loader = document.getElementById('loader');
     const countdown = document.getElementById('countdown');
     const progress = document.querySelector('#progressBar div');
+    const scoreDisplay = document.getElementById("score");
+    const clicker = document.getElementById("clicker");
+    let score = parseInt(localStorage.getItem("score")) || 0;
+    let clickPower = parseInt(localStorage.getItem("clickPower")) || 1;
+    let autoPower = parseInt(localStorage.getItem("autoPower")) || 0;
+
+    function updateScoreDisplay() {
+      scoreDisplay.textContent = `Ducket$: ${score.toLocaleString()}`;
+    }
+
+    function saveGame() {
+      localStorage.setItem("score", score);
+      localStorage.setItem("clickPower", clickPower);
+      localStorage.setItem("autoPower", autoPower);
+    }
+
+    clicker.onclick = () => {
+      score += clickPower;
+      updateScoreDisplay();
+      saveGame();
+    };
+
+    setInterval(() => {
+      score += autoPower;
+      updateScoreDisplay();
+      saveGame();
+    }, 1000);
 
     if (!localStorage.getItem("hasVisited")) {
       let timeLeft = 5;
@@ -135,8 +174,21 @@
           <div>${item.power}/${item.type.toUpperCase()} - $${item.cost.toLocaleString()}</div>
         </div>
       `;
+      el.onclick = () => {
+        if (score >= item.cost) {
+          score -= item.cost;
+          if (item.type === "click") clickPower += item.power;
+          else autoPower += item.power;
+          updateScoreDisplay();
+          saveGame();
+        } else {
+          alert("Not enough Ducket$!");
+        }
+      };
       shop.appendChild(el);
     });
+
+    updateScoreDisplay();
   </script>
 </body>
 </html>
