@@ -1,101 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Duck Duck Clicker</title>
   <style>
     body {
-      font-family: sans-serif;
       margin: 0;
-      background: linear-gradient(to bottom, #cfeeff, #ffffff);
-      overflow-x: hidden;
+      font-family: sans-serif;
+      background: #e0f7fa;
     }
-    #loader {
+    #loadingScreen {
       position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       background: #fff;
       display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      align-items: center;
-      font-size: 2em;
-      z-index: 1000;
+      font-size: 24px;
+      z-index: 9999;
     }
-    .hidden { display: none; }
-    .shop-item {
-      display: flex;
-      align-items: center;
+    #progressBar {
+      width: 60%;
+      height: 20px;
       background: #ccc;
-      border: 2px solid #888;
-      border-radius: 8px;
-      padding: 10px;
-      margin: 10px auto;
-      max-width: 400px;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
     }
-    .shop-item img {
-      width: 48px;
-      height: 48px;
-      margin-right: 10px;
+    #progress {
+      height: 100%;
+      width: 0%;
+      background: #4caf50;
+      transition: width 1s linear;
+    }
+    #gameContainer {
+      display: none;
+      padding: 20px;
     }
     .ad {
-      margin: 20px;
+      background: #ffeb3b;
       padding: 10px;
-      background: yellow;
-      text-align: center;
-      font-weight: bold;
-      border: 2px dashed red;
+      border: 2px solid #fbc02d;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <div id="loader">Loading Duck Duck Clicker...</div>
+  <div id="loadingScreen">
+    <div>Loading Duck Duck Clicker...</div>
+    <div id="countdown">5</div>
+    <div id="progressBar">
+      <div id="progress"></div>
+    </div>
+  </div>
 
-  <div class="ad">Host your Minecraft server FREE at <a href="https://aternos.org" target="_blank">aternos.org</a>!</div>
-
-  <div id="shop"></div>
+  <div id="gameContainer">
+    <h1>🦆 Duck Duck Clicker 🦆</h1>
+    <div class="ad">✨ Need a free Minecraft server? <strong><a href="https://aternos.org" target="_blank">Try Aternos.org</a></strong> ✨</div>
+    <!-- Shop and game UI will go here -->
+  </div>
 
   <script>
-    window.onload = () => document.getElementById('loader').classList.add('hidden');
+    let countdown = 5;
+    const countdownEl = document.getElementById("countdown");
+    const progressEl = document.getElementById("progress");
+    const loadingScreen = document.getElementById("loadingScreen");
+    const gameContainer = document.getElementById("gameContainer");
 
-    const shopItems = [
-      { name: "Tiny Duckling", type: "click", power: 1, cost: 50 },
-      { name: "Duck Coop", type: "sec", power: 1, cost: 120 },
-      { name: "Young Duckling", type: "click", power: 5, cost: 600 },
-      { name: "Duck Pond", type: "sec", power: 5, cost: 1200 },
-      { name: "Aspiring Duck", type: "click", power: 50, cost: 7000 },
-      { name: "Duck Park", type: "sec", power: 40, cost: 30000 },
-      { name: "Smart Duck", type: "click", power: 120, cost: 50000 },
-      { name: "Duck Farm", type: "sec", power: 120, cost: 90000 },
-      { name: "Adult Duck", type: "click", power: 1000, cost: 1800000 },
-      { name: "Duck Machine", type: "sec", power: 2000, cost: 4000000 },
-      { name: "CEO Duck", type: "click", power: 6500, cost: 6000000 },
-      { name: "Duck Industry", type: "sec", power: 40000, cost: 100000000 },
-      { name: "President Duck", type: "click", power: 14000, cost: 180000000 },
-      { name: "Duck Country", type: "sec", power: 120000, cost: 700000000 },
-      { name: "Leader Duck", type: "click", power: 80000, cost: 1500000000 },
-      { name: "Duck Continent", type: "sec", power: 300000, cost: 5500000000 },
-      { name: "Science Duck", type: "click", power: 190000, cost: 13500000000 },
-      { name: "Duck Planet", type: "sec", power: 1200000, cost: 85000000000 },
-      { name: "Astronaut Duck", type: "click", power: 800000, cost: 125000000000 },
-      { name: "Duck Galaxy", type: "sec", power: 5500000, cost: 200000000000 },
-      { name: "Cosmic Duck", type: "click", power: 2500000, cost: 500000000000 },
-      { name: "Duck Universe", type: "sec", power: 10000000, cost: 999999999999 }
-    ];
-
-    const shop = document.getElementById("shop");
-    shopItems.forEach(item => {
-      const el = document.createElement("div");
-      el.className = "shop-item";
-      el.innerHTML = `
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Emoji_u1f986.svg/1024px-Emoji_u1f986.svg.png" alt="Duck">
-        <div>
-          <div><strong>${item.name}</strong></div>
-          <div>${item.power}/${item.type.toUpperCase()} - $${item.cost.toLocaleString()}</div>
-        </div>
-      `;
-      shop.appendChild(el);
-    });
+    const interval = setInterval(() => {
+      countdown--;
+      countdownEl.textContent = countdown;
+      progressEl.style.width = `${(5 - countdown) * 20}%`;
+      if (countdown === 0) {
+        clearInterval(interval);
+        loadingScreen.style.display = "none";
+        gameContainer.style.display = "block";
+      }
+    }, 1000);
   </script>
 </body>
 </html>
